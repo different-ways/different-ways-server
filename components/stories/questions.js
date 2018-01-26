@@ -18,7 +18,6 @@ module.exports = {
       _id: ObjectId(),
       text,
       answers: [],
-      labels: []
     };
     return new Promise((resolve, reject) => {
       return Project.findByIdAndUpdate(
