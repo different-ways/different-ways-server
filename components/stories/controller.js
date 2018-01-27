@@ -1,6 +1,7 @@
 "use strict";
 const project = require('./projects');
 const question = require('./questions');
+const answer = require('./answers');
 
 module.exports = {
   addProject(req, res) {
@@ -62,16 +63,19 @@ module.exports = {
 
   },
   addAnswer(req, res) {
-
+    answer.add(req.params.pid, req.params.qid, req.body).then(q => res.json(q));
   },
   editAnswer(req, res) {
-
+    answer.edit(req.params.pid, req.params.qid, req.params.id, req.body).then(pr => res.json(pr));
   },
   removeAnswer(req, res) {
-
+    answer.delete(req.params.pid, req.params.qid, req.params.id).then(pr => res.json(pr));
   },
   getAnswer(req, res) {
-
+    const pr = answer.get(req.params.pid, req.params.qid, req.params.id);
+    pr.then(q =>{
+      res.json(q[0].questions.answers)
+    })
   },
   addLabelToQuestion(req, res) {
 

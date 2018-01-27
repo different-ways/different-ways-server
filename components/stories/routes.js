@@ -32,9 +32,9 @@ router.put('/variationAnswer/:aid/:vid', controller.addAnswerIntoVariation);
 router.delete('/variationAnswer/:aid/:vid', controller.removeAnswerFromVariation);
 
 router.post('/answer/:pid/:qid', controller.addAnswer);
-router.patch('/question/:pid/:qid/:id', controller.editAnswer);
-router.delete('/question/:pid/:qid/:id', controller.removeAnswer);
-router.get('/question/:pid/:qid/:id', controller.getAnswer);
+router.patch('/answer/:pid/:qid/:id', controller.editAnswer);
+router.delete('/answer/:pid/:qid/:id', controller.removeAnswer);
+router.get('/answer/:pid/:qid/:id', controller.getAnswer);
 
 
 module.exports = router;
