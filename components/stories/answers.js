@@ -47,18 +47,31 @@ module.exports = {
     if (link !== undefined) {
       update["questions.$[qu].answers.$[ans].link"] = link;
     }
-    console.log(update)
+    console.log(update);
     return new Promise((resolve, reject) => {
-      return Project.findOneAndUpdate(
-          { _id: ObjectId(pid) },
-          { $set: update },
+      mongoose.connection.db.command({
+        update: Project.collection.name,
+        updates: [
           {
+            q: { _id: ObjectId(pid) },
+            u: { $set: update },
             arrayFilters: [{"qu._id": qid}, {"ans._id": aid}],
-            new: true, fields: {_id: 0, questions: 1}
-          })
-          .then(project => {
-            resolve(extractAnswer(project, qid, aid))
-          }).catch(reject);
+          }
+        ]
+      }).catch(reject).then(
+          this.get(pid, qid, aid).catch(reject).then(resolve)
+      );
+      // return Project.findOneAndUpdate(
+      //     { _id: ObjectId(pid) },
+      //     { $set: update },
+      //     {
+      //       arrayFilters: [{"qu._id": qid}, {"ans._id": aid}],
+      //       returnNewDocument: true,
+      //       projection: {_id: 0, questions: 1}
+      //     })
+      //     .then(project => {
+      //       resolve(extractAnswer(project, qid, aid))
+      //     }).catch(reject);
     });
   },
   delete(pid, qid, id) {
@@ -78,30 +91,32 @@ module.exports = {
     ]);
   },
   get(pid, qid, aid) {
-    const Project = mongoose.model('Project');
-    return Project.aggregate([
-      {$match: {_id: ObjectId(pid)}},
-      {$project: {_id: 0, questions: 1}},
-      {$unwind: "$questions"},
-      {$match: {"questions._id": ObjectId(qid)}},
-      {$unwind: {
-        path: "$questions.answers",
-        preserveNullAndEmptyArrays: true
-      }},
-      {$match: {"questions.answers._id": ObjectId(aid)}},
-      {$lookup: {
-        from: "answerlabel",
-        localField: "questions.answers._id",
-        foreignField: 'aid',
-        as: 'questions.answers.labels'
-      }},
-      {$lookup: {
-        from: "variationanswer",
-        localField: "questions.answers._id",
-        foreignField: 'aid',
-        as: 'questions.answers.variations'
-      }},
-      {$project: {_id: 0, "questions.answers": 1}},
-    ]).exec();
-  },
+    return new Promise((resolve, reject) => {
+      const Project = mongoose.model('Project');
+      return Project.aggregate([
+        {$match: {_id: ObjectId(pid)}},
+        {$project: {_id: 0, questions: 1}},
+        {$unwind: "$questions"},
+        {$match: {"questions._id": ObjectId(qid)}},
+        {$unwind: {
+          path: "$questions.answers",
+          preserveNullAndEmptyArrays: true
+        }},
+        {$match: {"questions.answers._id": ObjectId(aid)}},
+        {$lookup: {
+          from: "answerlabel",
+          localField: "questions.answers._id",
+          foreignField: 'aid',
+          as: 'questions.answers.labels'
+        }},
+        {$lookup: {
+          from: "variationanswer",
+          localField: "questions.answers._id",
+          foreignField: 'aid',
+          as: 'questions.answers.variations'
+        }},
+        {$project: {_id: 0, "questions.answers": 1}},
+      ]).exec().catch(reject).then(pr => resolve(pr[0].questions.answers));
+    });
+  }
 };

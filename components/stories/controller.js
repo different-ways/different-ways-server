@@ -63,19 +63,16 @@ module.exports = {
 
   },
   addAnswer(req, res) {
-    answer.add(req.params.pid, req.params.qid, req.body).then(q => res.json(q));
+    answer.add(req.params.pid, req.params.qid, req.body).then(a => res.json(a));
   },
   editAnswer(req, res) {
-    answer.edit(req.params.pid, req.params.qid, req.params.id, req.body).then(pr => res.json(pr));
+    answer.edit(req.params.pid, req.params.qid, req.params.id, req.body).then(a => res.json(a));
   },
   removeAnswer(req, res) {
     answer.delete(req.params.pid, req.params.qid, req.params.id).then(pr => res.json(pr));
   },
   getAnswer(req, res) {
-    const pr = answer.get(req.params.pid, req.params.qid, req.params.id);
-    pr.then(q =>{
-      res.json(q[0].questions.answers)
-    })
+    answer.get(req.params.pid, req.params.qid, req.params.id).then(a => res.json(a));
   },
   addLabelToQuestion(req, res) {
 
