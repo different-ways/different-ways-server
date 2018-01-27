@@ -26,10 +26,10 @@ module.exports = {
     question.add(req.params.pid, req.body).then(q => res.json(q));
   },
   editQuestion(req, res) {
-
+    question.edit(req.params.pid, req.params.id, req.body).then(q => res.json(q));
   },
   removeQuestion(req, res) {
-
+    question.delete(req.params.pid, req.params.id).then(q => res.json(q));
   },
   getQuestion(req, res) {
     const pr = question.get(req.params.pid, req.params.id);
