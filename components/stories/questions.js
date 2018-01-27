@@ -31,14 +31,15 @@ module.exports = {
 
   },
   edit(pid, id, {text}) {
+    id = ObjectId(id);
     const Project = mongoose.model('Project');
     return new Promise((resolve, reject) => {
       return Project.findOneAndUpdate(
-          { _id: ObjectId(pid), "questions._id": ObjectId(id) },
+          { _id: ObjectId(pid), "questions._id": id },
           { $set: {"questions.$.text": text} },
           {new: true, fields: {_id: 0, questions: 1}})
           .then(project => {
-            resolve(extractQuestion(project, toAdd._id))
+            resolve(extractQuestion(project, id))
           }).catch(reject);
     });
   },
@@ -52,7 +53,7 @@ module.exports = {
             {_id: pid, "questions._id": id},
             {$pull: {questions: {_id: id}}}
         ).exec(),
-        QuestionLabel.deleteOne({qid: id}).exec() // remove labels from the question
+        QuestionLabel.remove({qid: id}).exec() // remove labels from the question
     ]);
   },
   get(pid, id) {
