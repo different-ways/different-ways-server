@@ -12,7 +12,7 @@ module.exports = {
     return project.findByIdAndUpdate(id, {name}, {new: true}).exec();
   },
   delete(id) {
-
+    return mongoose.model("Project").deleteOne({_id: ObjectId(id)}).exec()
   },
   get(id) {
     const Project = mongoose.model('Project');

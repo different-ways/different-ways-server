@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 function extractAnswer(project, qid, aid) {
-  console.log(project)
   for (const q of project.questions) {
     if (qid.equals(q._id)) {
       for (const a of q.answers) {
@@ -47,7 +46,6 @@ module.exports = {
     if (link !== undefined) {
       update["questions.$[qu].answers.$[ans].link"] = link;
     }
-    console.log(update);
     return new Promise((resolve, reject) => {
       mongoose.connection.db.command({
         update: Project.collection.name,
