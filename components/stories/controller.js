@@ -11,7 +11,7 @@ module.exports = {
     project.edit(req.params.id, req.body).then(pr => res.json(pr));
   },
   deleteProject(req, res) {
-
+    project.delete(req.params.id).then(result => res.json(result)).catch(err => res.status(500).json(err));
   },
   getProject(req, res) {
     const pr = project.get(req.params.id);
