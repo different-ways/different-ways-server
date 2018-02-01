@@ -1,7 +1,20 @@
 "use strict";
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const ObjectId = Schema.Types.ObjectId;
+
+const CAPABILITIES = [
+    "manage-projects",
+    "manage-labels",
+    "manage-variations",
+    "manage-questions",
+    "manage-answers",
+    "manage-answer-labels",
+    "manage-answer-variations",
+    "manage-users",
+    "view-users",
+    "manage-roles",
+    "view-roles",
+];
 
 const RoleSch = new Schema({
   name: {
@@ -9,11 +22,12 @@ const RoleSch = new Schema({
     required: true,
   },
   capabilities: {
-    type: [String],
+    type: [{type: String, enum: CAPABILITIES}],
     required: true,
     default: []
   },
 }, {collection: 'role'});
 
 const Role = mongoose.model('Role', RoleSch);
+Role.CAPABILITIES = CAPABILITIES;
 module.exports = Role;

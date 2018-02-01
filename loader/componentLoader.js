@@ -21,7 +21,7 @@ function loadComponents(app) {
       app.components[componentDir] = component = new component(app);
       // mount premiddleware if it exists
       if (component.premiddleware) {
-        app.use(component.premiddleware);
+        app.use(component.premiddleware.bind(component));
       }
       console.info('loaded ' + componentAbsDir + "/index");
     } catch (err) {
@@ -50,7 +50,7 @@ function loadComponents(app) {
   } catch (err) {
 
   }
-  // initialize components and main service
+  // initialize components
   for (const componentName of Object.keys(app.components)) {
     try {
       app.components[componentName].init();
