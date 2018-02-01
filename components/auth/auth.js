@@ -30,6 +30,8 @@ module.exports = {
                     return reject({msg: "Something went wrong"})
                   }
                   delete user.password;
+                  module.exports.mergeCapabilities(user);
+                  user.capabilities = [...user.capabilities];
                   return resolve({token, user})
                 })
               })

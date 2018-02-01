@@ -20,6 +20,14 @@ module.exports = {
     users.get(req.params.id)
         .then(user => res.json(user)).catch(err => res.status(500).json(err));
   },
+  me(req, res) {
+    if (!req.user) {
+      return res.status(403).json({msg: 'Not authenticated'})
+    }
+    delete req.user.password;
+    req.user.capabilities = [...req.user.capabilities];
+    return res.json(req.user)
+  },
   getUsers(req, res) {
     users.getAll()
         .then(users => res.json(users)).catch(err => res.status(500).json(err));

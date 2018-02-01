@@ -7,6 +7,7 @@ router.patch('/user/:id', controller.editUser);
 router.delete('/user/:id', controller.deleteUser);
 router.get('/user/:id', controller.getUser);
 router.get('/user', controller.getUsers);
+router.get('/me', controller.me);
 router.get('/userList', controller.listUsers);
 
 router.post('/login', controller.login);

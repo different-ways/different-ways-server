@@ -28,8 +28,6 @@ class Stories {
       this.determineUser(req)
           .then(user => {
             req.user = user;
-            console.log(user.username);
-            console.log(user.capabilities);
             next();
           })
           .catch(err => {
