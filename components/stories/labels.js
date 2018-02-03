@@ -39,7 +39,6 @@ module.exports = {
     if (color !== undefined) {
       update["labels.$.color"] = color
     }
-    console.log(update)
     const Project = mongoose.model('Project');
     return new Promise((resolve, reject) => {
       return Project.findOneAndUpdate(
@@ -47,7 +46,6 @@ module.exports = {
           { $set: update },
           {new: true, fields: {_id: 0, labels: 1}})
           .then(project => {
-            console.log("theen");
             resolve(extractLabel(project, id))
           }).catch(reject);
     });
@@ -80,4 +78,45 @@ module.exports = {
         .catch(reject);
     });
   },
+  addToAnswer(aid, lid) {
+    const AnswerLabel = mongoose.model('AnswerLabel');
+    try {
+      aid = ObjectId(aid);
+      lid = ObjectId(lid);
+    } catch (err) {
+      return Promise.reject({status: 400})
+    }
+    return AnswerLabel.create({aid, lid})
+  },
+  removeFromAnswer(aid, lid) {
+    const AnswerLabel = mongoose.model('AnswerLabel');
+    try {
+      aid = ObjectId(aid);
+      lid = ObjectId(lid);
+    } catch (err) {
+      return Promise.reject({status: 400})
+    }
+    return AnswerLabel.deleteOne({aid, lid}).exec()
+  },
+  addToQuestion(qid, lid) {
+    const QuestionLabel = mongoose.model('QuestionLabel');
+    try {
+      qid = ObjectId(qid);
+      lid = ObjectId(lid);
+    } catch (err) {
+      return Promise.reject({status: 400})
+    }
+    return QuestionLabel.create({ qid, lid})
+  },
+  removeFromQuestion(qid, lid) {
+    const QuestionLabel = mongoose.model('QuestionLabel');
+    try {
+      qid = ObjectId(qid);
+      lid = ObjectId(lid);
+    } catch (err) {
+      return Promise.reject({status: 400})
+    }
+    return QuestionLabel.deleteOne({qid, lid}).exec()
+  }
+
 };
