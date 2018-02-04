@@ -7,10 +7,13 @@ const variations = require('./variations');
 
 module.exports = {
   addProject(req, res) {
-    project.add(req.body).then(pr => res.json(pr))
+    project.add(req.body)
+        .then(pr => res.json(pr))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   editProject(req, res) {
-    project.edit(req.params.id, req.body).then(pr => res.json(pr));
+    project.edit(req.params.id, req.body)
+        .then(pr => res.json(pr));
   },
   deleteProject(req, res) {
     project.delete(req.params.id)
@@ -18,29 +21,34 @@ module.exports = {
         .catch(err => res.status(err.status || 500).json(err));
   },
   getProject(req, res) {
-    const pr = project.get(req.params.id);
-    pr.then(pr =>{
-      res.json(pr[0])
-    })
+    project.get(req.params.id)
+        .then(pr => res.json(pr[0]))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   listProjects(req, res) {
-    project.list().then(prs => res.json(prs))
+    project.list()
+        .then(prs => res.json(prs))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   addQuestion(req, res) {
-    question.add(req.params.pid, req.body).then(q => res.json(q));
+    question.add(req.params.pid, req.body)
+        .then(q => res.json(q))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   editQuestion(req, res) {
-    question.edit(req.params.pid, req.params.id, req.body).then(q => res.json(q));
+    question.edit(req.params.pid, req.params.id, req.body)
+        .then(q => res.json(q))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   removeQuestion(req, res) {
-    question.delete(req.params.pid, req.params.id).then(q => res.json(q));
+    question.delete(req.params.pid, req.params.id)
+        .then(q => res.json(q))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   getQuestion(req, res) {
-    const pr = question.get(req.params.pid, req.params.id);
-    pr.then(q =>{
-      res.json(q[0])
-    })
-
+    question.get(req.params.pid, req.params.id)
+        .then(q => res.json(q[0]))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   addLabel(req, res) {
     labels.add(req.params.pid, req.body)
@@ -83,16 +91,24 @@ module.exports = {
         .catch(err => res.status(err.status || 500).json(err));
   },
   addAnswer(req, res) {
-    answer.add(req.params.pid, req.params.qid, req.body).then(a => res.json(a));
+    answer.add(req.params.pid, req.params.qid, req.body)
+        .then(a => res.json(a))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   editAnswer(req, res) {
-    answer.edit(req.params.pid, req.params.qid, req.params.id, req.body).then(a => res.json(a));
+    answer.edit(req.params.pid, req.params.qid, req.params.id, req.body)
+        .then(a => res.json(a))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   removeAnswer(req, res) {
-    answer.delete(req.params.pid, req.params.qid, req.params.id).then(pr => res.json(pr));
+    answer.delete(req.params.pid, req.params.qid, req.params.id)
+        .then(pr => res.json(pr))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   getAnswer(req, res) {
-    answer.get(req.params.pid, req.params.qid, req.params.id).then(a => res.json(a));
+    answer.get(req.params.pid, req.params.qid, req.params.id)
+        .then(a => res.json(a))
+        .catch(err => res.status(err.status || 500).json(err));
   },
   addLabelToQuestion(req, res) {
     labels.addToQuestion(req.params.qid, req.params.lid)
