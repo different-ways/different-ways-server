@@ -25,14 +25,16 @@ module.exports = {
           bcrypt.compare(password, user.password)
               .then((cmp) => {
                 if (!cmp) return reject({msg: "Wrong password"});
-                jwt.sign({sub: user._id}, secret, (err, token) => {
+                // expire in 15 days
+                const tokenExpiration = Math.floor(Date.now()) + 1000*60*60*24*15;
+                jwt.sign({sub: user._id, exp: tokenExpiration/1000}, secret, (err, token) => {
                   if (err) {
                     return reject({msg: "Something went wrong"})
                   }
                   delete user.password;
                   module.exports.mergeCapabilities(user);
                   user.capabilities = [...user.capabilities];
-                  return resolve({token, user})
+                  return resolve({token, user, tokenExpiration})
                 })
               })
               .catch(() => reject({msg: "Wrong password"}));
