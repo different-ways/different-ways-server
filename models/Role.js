@@ -7,6 +7,7 @@ const CAPABILITIES = [
     "manage-labels",
     "manage-variations",
     "manage-questions",
+    "manage-question-labels",
     "manage-answers",
     "manage-answer-labels",
     "manage-answer-variations",
