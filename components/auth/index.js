@@ -1,8 +1,13 @@
 const auth = require('./auth');
+const users = require('./users');
+const roles = require('./roles');
 
 class Stories {
   constructor(app) {
     this.app = app;
+    this.auth = auth;
+    this.users = users;
+    this.roles = roles;
   }
 
   init() {

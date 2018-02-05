@@ -64,5 +64,8 @@ module.exports = {
   },
   list() {
 
+  },
+  count() {
+    return mongoose.model("User").count({}).exec();
   }
 };

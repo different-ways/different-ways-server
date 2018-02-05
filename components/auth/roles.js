@@ -3,6 +3,9 @@ const mongoose = require('mongoose');
 const ObjectId = mongoose.Types.ObjectId;
 
 module.exports = {
+  allCapabilities() {
+    return mongoose.model("Role").CAPABILITIES;
+  },
   add(role) {
     return mongoose.model("Role").create({name: role.name, capabilities: role.capabilities})
   },
