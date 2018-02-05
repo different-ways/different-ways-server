@@ -9,6 +9,18 @@ class Stories {
 
   }
 
+  can(requirements, user, action, entityType) {
+    if (!requirements[action] || !requirements[action][entityType]) return false;
+    const caps = requirements[action][entityType];
+    if (!user) return caps.includes(null);
+    for (const cap of caps) {
+      if (cap === null || user.capabilities.has(cap)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   determineUser(req) {
     return new Promise((resolve, reject) => {
       let bearer = req.header('Authorization');
