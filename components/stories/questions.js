@@ -47,50 +47,20 @@ module.exports = {
     pid = ObjectId(pid);
     id = ObjectId(id);
     const Project = mongoose.model('Project');
-    const QuestionLabel = mongoose.model('QuestionLabel');
-    return Promise.all([
-        Project.update(
-            {_id: pid, "questions._id": id},
-            {$pull: {questions: {_id: id}}}
-        ).exec(),
-        QuestionLabel.remove({qid: id}).exec() // remove labels from the question
-    ]);
+    return Project.update(
+        {_id: pid, "questions._id": id},
+        {$pull: {questions: {_id: id}}}
+    ).exec()
   },
   get(pid, id) {
-    const Project = mongoose.model('Project');
-    return Project.aggregate([
-      {$match: {_id: ObjectId(pid)}},
-      {$project: {_id: 0, questions: 1}},
-      {$unwind: "$questions"},
-      {$match: {"questions._id": ObjectId(id)}},
-      {$lookup: {
-        from: "questionlabel",
-        localField: "questions._id",
-        foreignField: 'qid',
-        as: 'questions.labels'
-      }},
-      {$unwind: {
-        path: "$questions.answers",
-        preserveNullAndEmptyArrays: true
-      }},
-      {$lookup: {
-        from: "answerlabel",
-        localField: "questions.answers._id",
-        foreignField: 'aid',
-        as: 'questions.answers.labels'
-      }},
-      {$lookup: {
-        from: "variationanswer",
-        localField: "questions.answers._id",
-        foreignField: 'aid',
-        as: 'questions.answers.variations'
-      }},
-      {$group: {
-        _id: "$questions._id",
-        text: {$first: "$questions.text"},
-        labels: {$first: "$questions.labels"},
-        answers: {$push: "$questions.answers"}
-      }}
-    ]).exec();
+    return new Promise((resolve, reject) => {
+      const Project = mongoose.model('Project');
+      return Project.aggregate([
+        {$match: {_id: ObjectId(pid)}},
+        {$project: {_id: 0, questions: 1}},
+        {$unwind: "$questions"},
+        {$match: {"questions._id": ObjectId(id)}},
+      ]).exec().then(pr => resolve(pr[0].questions)).catch(reject);
+    })
   },
 };

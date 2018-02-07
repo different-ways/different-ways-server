@@ -50,18 +50,22 @@ module.exports = {
           }).catch(reject);
     });
   },
-  delete(pid, id) {
+  delete(pid, vid) {
     pid = ObjectId(pid);
-    id = ObjectId(id);
+    vid = ObjectId(vid);
     const Project = mongoose.model('Project');
-    const VariationAnswer = mongoose.model('VariationAnswer');
-    return Promise.all([
-      Project.update(
-          {_id: pid, "variations._id": id},
-          {$pull: {variations: {_id: id}}}
-      ).exec(),
-      VariationAnswer.remove({vid: id}).exec() // remove labels from all answers
-    ]);
+    return mongoose.connection.db.command({
+      update: Project.collection.name,
+      updates: [{
+        q: {_id: pid},
+        u: {
+          $pull: {
+            variations: {_id: vid},
+            "questions.$[].answers.$[].variations": {vid},
+          }
+        }
+      }]
+    });
   },
   get(pid, id) {
     const Project = mongoose.model('Project');
@@ -76,24 +80,36 @@ module.exports = {
           .catch(reject);
     });
   },
-  addToAnswer(aid, vid) {
-    const VariationAnswer = mongoose.model('VariationAnswer');
-    try {
-      aid = ObjectId(aid);
-      vid = ObjectId(vid);
-    } catch (err) {
-      return Promise.reject({status: 400})
-    }
-    return VariationAnswer.create({aid, vid})
+  addToAnswer(pid, qid, aid, vid) {
+    const Project = mongoose.model('Project');
+    qid = ObjectId(qid);
+    aid = ObjectId(aid);
+    vid = ObjectId(vid);
+    return mongoose.connection.db.command({
+      update: Project.collection.name,
+      updates: [
+        {
+          q: { _id: ObjectId(pid) },
+          u: { $push: {"questions.$[qu].answers.$[ans].variations": {vid}} },
+          arrayFilters: [{"qu._id": qid}, {"ans._id": aid, "ans.variations.vid": {$not: {$eq: vid}}}],
+        }
+      ]
+    })
   },
-  removeFromAnswer(aid, vid) {
-    const VariationAnswer = mongoose.model('VariationAnswer');
-    try {
-      aid = ObjectId(aid);
-      vid = ObjectId(vid);
-    } catch (err) {
-      return Promise.reject({status: 400})
-    }
-    return VariationAnswer.deleteOne({aid, vid}).exec()
+  removeFromAnswer(pid, qid, aid, vid) {
+    const Project = mongoose.model('Project');
+    qid = ObjectId(qid);
+    aid = ObjectId(aid);
+    vid = ObjectId(vid);
+    return mongoose.connection.db.command({
+      update: Project.collection.name,
+      updates: [
+        {
+          q: { _id: ObjectId(pid) },
+          u: { $pull: {"questions.$[qu].answers.$[ans].variations": {vid}} },
+          arrayFilters: [{"qu._id": qid}, {"ans._id": aid}],
+        }
+      ]
+    })
   },
 };

@@ -50,20 +50,23 @@ module.exports = {
           }).catch(reject);
     });
   },
-  delete(pid, id) {
+  delete(pid, lid) {
     pid = ObjectId(pid);
-    id = ObjectId(id);
+    lid = ObjectId(lid);
     const Project = mongoose.model('Project');
-    const QuestionLabel = mongoose.model('QuestionLabel');
-    const AnswerLabel = mongoose.model('AnswerLabel');
-    return Promise.all([
-      Project.update(
-          {_id: pid, "labels._id": id},
-          {$pull: {labels: {_id: id}}}
-      ).exec(),
-      QuestionLabel.remove({lid: id}).exec(), // remove labels from all questions
-      AnswerLabel.remove({lid: id}).exec() // remove labels from all answers
-    ]);
+    return mongoose.connection.db.command({
+      update: Project.collection.name,
+      updates: [{
+        q: {_id: pid},
+        u: {
+          $pull: {
+            labels: {_id: lid},
+            "questions.$[].labels": {lid},
+            "questions.$[].answers.$[].labels": {lid},
+          }
+        }
+      }]
+    });
   },
   get(pid, id) {
     const Project = mongoose.model('Project');
@@ -74,49 +77,59 @@ module.exports = {
         {$unwind: "labels"},
         {$match: {"labels._id": ObjectId(id)}},
       ]).exec()
-        .then(pr => resolve(pr.labels))
+        .then(pr => resolve(pr[0].labels))
         .catch(reject);
     });
   },
-  addToAnswer(aid, lid) {
-    const AnswerLabel = mongoose.model('AnswerLabel');
-    try {
-      aid = ObjectId(aid);
-      lid = ObjectId(lid);
-    } catch (err) {
-      return Promise.reject({status: 400})
-    }
-    return AnswerLabel.create({aid, lid})
+  addToAnswer(pid, qid, aid, lid) {
+    const Project = mongoose.model('Project');
+    qid = ObjectId(qid);
+    aid = ObjectId(aid);
+    lid = ObjectId(lid);
+    return mongoose.connection.db.command({
+      update: Project.collection.name,
+      updates: [
+        {
+          q: { _id: ObjectId(pid) },
+          u: { $push: {"questions.$[qu].answers.$[ans].labels": {lid: lid}} },
+          arrayFilters: [{"qu._id": qid}, {"ans._id": aid, "ans.labels.lid": {$not: {$eq: lid}}}],
+        }
+      ]
+    })
   },
-  removeFromAnswer(aid, lid) {
-    const AnswerLabel = mongoose.model('AnswerLabel');
-    try {
-      aid = ObjectId(aid);
-      lid = ObjectId(lid);
-    } catch (err) {
-      return Promise.reject({status: 400})
-    }
-    return AnswerLabel.deleteOne({aid, lid}).exec()
+  removeFromAnswer(pid, qid, aid, lid) {
+    const Project = mongoose.model('Project');
+    qid = ObjectId(qid);
+    aid = ObjectId(aid);
+    lid = ObjectId(lid);
+    return mongoose.connection.db.command({
+      update: Project.collection.name,
+      updates: [
+        {
+          q: { _id: ObjectId(pid) },
+          u: { $pull: {"questions.$[qu].answers.$[ans].labels": {lid}} },
+          arrayFilters: [{"qu._id": qid}, {"ans._id": aid}],
+        }
+      ]
+    })
   },
-  addToQuestion(qid, lid) {
-    const QuestionLabel = mongoose.model('QuestionLabel');
-    try {
-      qid = ObjectId(qid);
-      lid = ObjectId(lid);
-    } catch (err) {
-      return Promise.reject({status: 400})
-    }
-    return QuestionLabel.create({ qid, lid})
+  addToQuestion(pid, qid, lid) {
+    qid = ObjectId(qid);
+    lid = ObjectId(lid);
+    const Project = mongoose.model('Project');
+    return Project.update(
+        {_id: ObjectId(pid), "questions._id": qid, "questions.$.labels.lid": {$not: {$eq: lid}}},
+        {$push: {"questions.$.labels": {lid} }}
+    ).exec();
   },
-  removeFromQuestion(qid, lid) {
-    const QuestionLabel = mongoose.model('QuestionLabel');
-    try {
-      qid = ObjectId(qid);
-      lid = ObjectId(lid);
-    } catch (err) {
-      return Promise.reject({status: 400})
-    }
-    return QuestionLabel.deleteOne({qid, lid}).exec()
+  removeFromQuestion(pid, qid, lid) {
+    qid = ObjectId(qid);
+    lid = ObjectId(lid);
+    const Project = mongoose.model('Project');
+    return Project.update(
+        {_id: ObjectId(pid), "questions._id": qid},
+        {$pull: {"questions.$.labels": {lid} }}
+    ).exec();
   }
 
 };

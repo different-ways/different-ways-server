@@ -18,18 +18,18 @@ router.patch('/label/:pid/:id', controller.editLabel);
 router.delete('/label/:pid/:id', controller.removeLabel);
 router.get('/label/:pid/:id', controller.getLabel);
 
-router.put('/questionLabel/:qid/:lid', controller.addLabelToQuestion);
-router.delete('/questionLabel/:qid/:lid', controller.removeLabelFromQuestion);
-router.put('/answerLabel/:aid/:lid', controller.addLabelToAnswer);
-router.delete('/answerLabel/:aid/:lid', controller.removeLabelFromAnswer);
+router.put('/questionLabel/:pid/:qid/:lid', controller.addLabelToQuestion);
+router.delete('/questionLabel/:pid/:qid/:lid', controller.removeLabelFromQuestion);
+router.put('/answerLabel/:pid/:qid/:aid/:lid', controller.addLabelToAnswer);
+router.delete('/answerLabel/:pid/:qid/:aid/:lid', controller.removeLabelFromAnswer);
 
 router.post('/variation/:pid', controller.addVariation);
 router.patch('/variation/:pid/:id', controller.editVariation);
 router.delete('/variation/:pid/:id', controller.removeVariation);
 router.get('/variation/:pid/:id', controller.getVariation);
 
-router.put('/variationAnswer/:aid/:vid', controller.addAnswerIntoVariation);
-router.delete('/variationAnswer/:aid/:vid', controller.removeAnswerFromVariation);
+router.put('/variationAnswer/:pid/:qid/:aid/:vid', controller.addAnswerIntoVariation);
+router.delete('/variationAnswer/:pid/:qid/:aid/:vid', controller.removeAnswerFromVariation);
 
 router.post('/answer/:pid/:qid', controller.addAnswer);
 router.patch('/answer/:pid/:qid/:id', controller.editAnswer);

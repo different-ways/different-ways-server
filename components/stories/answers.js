@@ -57,7 +57,7 @@ module.exports = {
           }
         ]
       }).catch(reject).then(
-          this.get(pid, qid, aid).catch(reject).then(resolve)
+          module.exports.get(pid, qid, aid).then(resolve).catch(reject)
       );
       // return Project.findOneAndUpdate(
       //     { _id: ObjectId(pid) },
@@ -77,15 +77,11 @@ module.exports = {
     qid = ObjectId(qid);
     id = ObjectId(id);
     const Project = mongoose.model('Project');
-    const AnswerLabel = mongoose.model('AnswerLabel');
-    const VariationAnswer = mongoose.model('VariationAnswer');
     return Promise.all([
       Project.update(
           {_id: pid, "questions._id": qid},
           {$pull: {"questions.$.answers": {_id: id}}}
       ).exec(),
-      AnswerLabel.remove({aid: id}).exec(), // remove labels from the answer
-      VariationAnswer.remove({aid: id}).exec() // remove variations from the answer
     ]);
   },
   get(pid, qid, aid) {
@@ -101,20 +97,8 @@ module.exports = {
           preserveNullAndEmptyArrays: true
         }},
         {$match: {"questions.answers._id": ObjectId(aid)}},
-        {$lookup: {
-          from: "answerlabel",
-          localField: "questions.answers._id",
-          foreignField: 'aid',
-          as: 'questions.answers.labels'
-        }},
-        {$lookup: {
-          from: "variationanswer",
-          localField: "questions.answers._id",
-          foreignField: 'aid',
-          as: 'questions.answers.variations'
-        }},
         {$project: {_id: 0, "questions.answers": 1}},
-      ]).exec().catch(reject).then(pr => resolve(pr[0].questions.answers));
+      ]).exec().then(pr => resolve(pr[0].questions.answers)).catch(reject);
     });
   }
 };

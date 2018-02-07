@@ -35,7 +35,7 @@ module.exports = {
   getProject(req, res) {
     if (!checkPermission(req, res, 'view', 'project')) return;
     project.get(req.params.id)
-        .then(pr => res.json(pr[0]))
+        .then(pr => res.json(pr))
         .catch(err => res.status(err.status || 500).json(err));
   },
   listProjects(req, res) {
@@ -142,37 +142,37 @@ module.exports = {
   },
   addLabelToQuestion(req, res) {
     if (!checkPermission(req, res, 'create', 'questionLabel')) return;
-    labels.addToQuestion(req.params.qid, req.params.lid)
+    labels.addToQuestion(req.params.pid, req.params.qid, req.params.lid)
         .then(label => res.json(label))
         .catch(err => res.status(err.status || 500).json(err));
   },
   removeLabelFromQuestion(req, res) {
     if (!checkPermission(req, res, 'delete', 'questionLabel')) return;
-    labels.removeFromQuestion(req.params.qid, req.params.lid)
+    labels.removeFromQuestion(req.params.pid, req.params.qid, req.params.lid)
         .then(label => res.json(label))
         .catch(err => res.status(err.status || 500).json(err));
   },
   addLabelToAnswer(req, res) {
     if (!checkPermission(req, res, 'create', 'answerLabel')) return;
-    labels.addToAnswer(req.params.aid, req.params.lid)
+    labels.addToAnswer(req.params.pid, req.params.qid, req.params.aid, req.params.lid)
         .then(label => res.json(label))
         .catch(err => res.status(err.status || 500).json(err));
   },
   removeLabelFromAnswer(req, res) {
     if (!checkPermission(req, res, 'delete', 'answerLabel')) return;
-    labels.removeFromAnswer(req.params.aid, req.params.lid)
+    labels.removeFromAnswer(req.params.pid, req.params.qid, req.params.aid, req.params.lid)
         .then(label => res.json(label))
         .catch(err => res.status(err.status || 500).json(err));
   },
   addAnswerIntoVariation(req, res) {
     if (!checkPermission(req, res, 'create', 'answerVariation')) return;
-    variations.addToAnswer(req.params.aid, req.params.vid)
+    variations.addToAnswer(req.params.pid, req.params.qid, req.params.aid, req.params.vid)
         .then(label => res.json(label))
         .catch(err => res.status(err.status || 500).json(err));
   },
   removeAnswerFromVariation(req, res) {
     if (!checkPermission(req, res, 'delete', 'answerVariation')) return;
-    variations.removeFromAnswer(req.params.aid, req.params.vid)
+    variations.removeFromAnswer(req.params.pid, req.params.qid, req.params.aid, req.params.vid)
         .then(label => res.json(label))
         .catch(err => res.status(err.status || 500).json(err));
   },

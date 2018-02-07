@@ -1,6 +1,7 @@
 "use strict";
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const ObjectId = Schema.Types.ObjectId;
 
 const AnswerSch = new Schema({
   text: {
@@ -11,6 +12,16 @@ const AnswerSch = new Schema({
     type: String,
     required: true,
     default: ''
+  },
+  labels: {
+    required: true,
+    default: [],
+    type: [{lid: ObjectId, _id : false}]
+  },
+  variations: {
+    required: true,
+    default: [],
+    type: [{vid: ObjectId, _id : false}]
   }
 });
 
@@ -19,7 +30,16 @@ const QuestionSch = new Schema({
     type: String,
     required: true
   },
-  answers: [AnswerSch]
+  answers: {
+    required: true,
+    default: [],
+    type: [AnswerSch]
+  },
+  labels: {
+    required: true,
+    default: [],
+    type: [{lid: ObjectId, _id : false}]
+  },
 });
 
 const LabelSch = new Schema({
