@@ -10,7 +10,7 @@ const enviroment = require('./config/environment');
 
 const app = express();
 
-app.use(cors({origin: enviroment.corsOrigin}));
+app.use(cors({origin: enviroment.corsOrigin, maxAge: 3600}));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
