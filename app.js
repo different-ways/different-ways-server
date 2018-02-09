@@ -9,14 +9,17 @@ const initializer = require('./loader/initializer');
 const enviroment = require('./config/environment');
 
 const app = express();
+const socketio = require('socket.io')();
+app.socketio = socketio;
 
 app.use(cors({origin: enviroment.corsOrigin, maxAge: 3600}));
+socketio.origins([enviroment.corsOrigin.replace(/^http(s)?:\/\//, '')]);
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-initializer.init(app).then(() => {
+initializer.init(app, socketio).then(() => {
   // catch 404 and forward to error handler
   app.use(function(req, res, next) {
     const err = new Error('Not Found');

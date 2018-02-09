@@ -11,7 +11,7 @@ function getDirectories(srcpath) {
   });
 }
 
-function loadComponents(app) {
+function loadComponents(app, socketio) {
   const componentDirs = getDirectories(path.join(app.cwd, COMPONENTS_PATH));
   for (const componentDir of componentDirs) {
     const componentAbsDir = path.join(app.cwd, COMPONENTS_PATH, componentDir);
@@ -32,12 +32,26 @@ function loadComponents(app) {
     // try to load routes if they exists
     const componentAbsDir = path.join(app.cwd, COMPONENTS_PATH, componentDir);
     try {
-      console.log(path.join(componentAbsDir, "routes"));
       app.routes[componentDir] = require(path.join(componentAbsDir, "routes"));
       app.use('/'+componentDir, app.routes[componentDir]);
     } catch (e) {
       console.warn("Could not load routes file in " + componentAbsDir + "\n" + e.message);
     }
+    if (socketio) {
+      // try to load message handlers if they exists
+      try {
+        const messages = require(path.join(componentAbsDir, "message-handlers"));
+        console.info('loaded message handlers for '+componentDir+ ' '+Object.keys(messages));
+        for (const msgType of Object.keys(messages)) {
+          if (!Array.isArray(app.messageHandlers[msgType])) {
+            app.messageHandlers[msgType] = []
+          }
+          app.messageHandlers[msgType].push({action: messages[msgType], componentName: componentDir});
+        }
+      } catch (e) {
+      }
+    }
+
   }
 
   // load models
@@ -48,8 +62,24 @@ function loadComponents(app) {
       Object.assign(app.models, models);
     }
   } catch (err) {
+  }
+
+  if (socketio) {
+    socketio.on('connection', socket => {
+      for (const [msgType, handlers] of Object.entries(app.messageHandlers)) {
+        socket.on(msgType, (msg, ack) => {
+          console.info(`Received message: ${msgType}: ${JSON.stringify(msg)}`);
+          for (const handler of handlers) {
+            const context = {socket, app, component: app.components[handler.componentName]};
+            handler.action(context, msg, ack)
+          }
+        })
+      }
+
+    });
 
   }
+
   // initialize components
   for (const componentName of Object.keys(app.components)) {
     try {

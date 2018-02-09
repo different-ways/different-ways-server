@@ -3,13 +3,16 @@ const mongoose = require('mongoose');
 const config = require('../config/environment-example');
 const loader = require('./componentLoader');
 
-function init(app) {
+function init(app, socketio) {
   app.cwd = process.cwd();
 
   app.models = {};
   app.db = mongoose.connection;
   app.components = {};
   app.routes = {};
+  if (socketio) {
+    app.messageHandlers = {};
+  }
 
   mongoose.connect(config.mongoUrl);
 
@@ -21,7 +24,7 @@ function init(app) {
         return reject(err);
       }
       // dynamically load app components
-      loader.loadComponents(app);
+      loader.loadComponents(app, socketio);
       resolve();
     });
   });
