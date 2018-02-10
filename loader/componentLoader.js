@@ -19,6 +19,7 @@ function loadComponents(app, socketio) {
       console.info('loading ' + componentAbsDir + "/index");
       let component = require(path.join(componentAbsDir, "index"));
       app.components[componentDir] = component = new component(app);
+      component.name = componentDir;
       // mount premiddleware if it exists
       if (component.premiddleware) {
         app.use(component.premiddleware.bind(component));
@@ -33,6 +34,10 @@ function loadComponents(app, socketio) {
     const componentAbsDir = path.join(app.cwd, COMPONENTS_PATH, componentDir);
     try {
       app.routes[componentDir] = require(path.join(componentAbsDir, "routes"));
+      app.use('/'+componentDir, (req, res, next) => {
+        req.comp = app.components[componentDir];
+        next()
+      });
       app.use('/'+componentDir, app.routes[componentDir]);
     } catch (e) {
       console.warn("Could not load routes file in " + componentAbsDir + "\n" + e.message);
